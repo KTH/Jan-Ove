@@ -1,0 +1,54 @@
+version: '3.5'
+
+services:
+  jan-ove:
+
+    build: .
+
+    env_file:
+      - .env
+      
+    labels:
+      - se.kth.team=team-pipeline
+      - se.kth.cluster=management
+      - se.kth.slackChannels="#team-pipeline-build"
+      - se.kth.publicName.english="Jan-Ove"
+      - se.kth.publicName.swedish="Jan-Ove"
+      - se.kth.description.english="KTH table tennis bot"
+      - se.kth.description.swedish="KTH table tennis bot"
+      - se.kth.importance="low"
+      
+    volumes:
+      - /var/run:/var/run
+      - ~/.docker:/root/.docker
+      
+    environment: 
+      BUTTERNUT_VERSION: "~1.0.0"
+
+    deploy:
+      # How many replicas should be running of this service?
+      replicas: 1
+
+      # Take down one container at a time. 
+      update_config:
+        parallelism: 1
+
+      # Decided what policy to enforce when restarting the container
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 2
+
+      # Decides the reserverd and limitations of cpu and memory usage
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.1'
+          memory: 100M
+    # Limit the logging stored on the worker vm:s. All logs are found in OMS.
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
