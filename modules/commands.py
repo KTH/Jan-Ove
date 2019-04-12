@@ -98,7 +98,7 @@ def add_score_to_leaderboard(leaderboard):
         tuplelist.append((player[0], player[1], player[2], player[3], player[4],))
     for index, data in enumerate(tuplelist):
         losses = data[cols['games']] - data[cols['wins']]
-        tuplelist[index] += ((losses * -0.5) + (data[cols['wins']] * 2),)
+        tuplelist[index] += ((losses * -0.5) + data[cols['wins']],)
     tuplelist.sort(key=lambda p: p[cols['score']], reverse=True)
     return tuplelist
 
