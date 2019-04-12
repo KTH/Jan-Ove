@@ -19,13 +19,13 @@ def handle_command(command, channel, user):
         response = None
         command = commands.is_valid_command(cmd)
         if command:
-            if (len(split_commands) - 1) != cmd['params']:
+            if (len(split_commands) - 1) != command['params']:
                 response = (
                     f'Wrong number of arguments for command. '
-                    f'Should be {cmd["params"]} '
+                    f'Should be {command["params"]} '
                     f'but was {len(split_commands) - 1}'
                 )
-            response = cmd['func'](split_commands)
+            response = command['func'](split_commands)
 
     except ReadTimeout as error:
         log.error('Error while handling command: %s', error)
