@@ -43,6 +43,7 @@ def cmd_top_3():
 def cmd_register_user(player_name, slack_handle):
     if database.player_exists(player_name):
         return 'A player with that name is already registered'
+    slack_handle = slack_handle.replace('@', '')
     database.register_player(player_name, slack_handle)
     return f'The player "{player_name}" is now registered for play'
 
@@ -66,7 +67,7 @@ def cmd_list_players():
                                  ('Slack handle', 20)])
     for player in players:
         output += create_row([(player[1], 20),
-                              (player[2], 20)])
+                              (f'@{player[2]}', 20)])
     output += '```'
     return output
 
