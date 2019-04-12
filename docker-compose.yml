@@ -1,13 +1,10 @@
 version: '3.5'
 
 services:
-  jan-ove:
-
+  waldner:
     build: .
-
     env_file:
       - .env
-      
     labels:
       - se.kth.team=team-pipeline
       - se.kth.cluster=management
@@ -17,11 +14,9 @@ services:
       - se.kth.description.english="KTH table tennis bot"
       - se.kth.description.swedish="KTH table tennis bot"
       - se.kth.importance="low"
-      
     volumes:
       - /var/run:/var/run
       - ~/.docker:/root/.docker
-      
     environment: 
       BUTTERNUT_VERSION: "~1.0.0"
 

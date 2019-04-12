@@ -3,19 +3,21 @@ __author__ = 'tinglev@kth.se'
 import time
 import logging
 import log as log_module
-from modules import slack
-from modules import database
 from requests.exceptions import ReadTimeout
 
-from modules.commands import cmd_register_result
-from modules.commands import cmd_register_user
-from modules.commands import cmd_help
+from modules import slack, database, commands
+from modules.commands import (cmd_register_result,
+                              cmd_register_user,
+                              cmd_list_players,
+                              cmd_last_5_results,
+                              cmd_leaderboard,
+                              cmd_help)
 
 log_module.init_logging()
-log = logging.getLogger(__name__)
 
 def handle_command(command, channel, user):
     try:
+        log = logging.getLogger(__name__)
         log.info(
             'Handling cmd "%s" on ch "%s" and user "%s"',
             command, channel, user
@@ -24,42 +26,56 @@ def handle_command(command, channel, user):
         split_commands = command.split(' ')
         cmd = split_commands[0]
         response = None
-        if cmd in database.commands:
-            if cmd == 'register-player':
-                response = cmd_register_user(channel, user, split_commands[1])
-            if cmd == 'register-result':
-                response = cmd_register_result(
-                    channel, user, split_commands[1], split_commands[2], split_commands[3], split_commands[4]
+        if commands.is_valid_command(cmd):
+            if (len(split_commands) - 1) != commands.get_command_arguments(cmd):
+                response = (
+                    f'Wrong number of arguments for command. '
+                    f'Should be {commands.get_command_arguments(cmd)} '
+                    f'but was {len(split_commands) - 1}'
                 )
-            if cmd == 'help':
+            elif cmd == 'register-player':
+                response = cmd_register_user(split_commands[1], split_commands[2])
+            elif cmd == 'register-result':
+                response = cmd_register_result(
+                    split_commands[1], split_commands[2],
+                    split_commands[3], split_commands[4]
+                )
+            elif cmd == 'list-players':
+                response = cmd_list_players()
+            elif cmd == 'last-5-results':
+                response = cmd_last_5_results()
+            elif cmd == 'leaderboard':
+                response = cmd_leaderboard()
+            elif cmd == 'help':
                 response = cmd_help()
 
-    except (ReadTimeout) as error:
+    except ReadTimeout as error:
         log.error('Error while handling command: %s', error)
         response = ('Sorry, the :whale: refused to do as it was told. Try again ...\n'
                     '```{}```'.format(error))
     slack.send_ephemeral(channel, user, response, default_response)
 
 def main():
+    log = logging.getLogger(__name__)
     try:
         if slack.init() and database.init():
             log.info("Jan-Ove connected and running!")
             while True:
-                log.info('Checking for new messages')
+                log.debug('Checking for new messages')
                 rtm_messages = []
                 try:
                     rtm_messages = slack.get_rtm_messages(slack.rtm_read())
                 except Exception:
-                    log.warn('Timeout when reading from Slack')
-                if len(rtm_messages) > 0:
+                    log.warning('Timeout when reading from Slack')
+                if rtm_messages:
                     log.debug('Got %s messages since last update',
                               len(rtm_messages))
                 for message in rtm_messages:
                     log.debug('Handling message "%s"', message)
-                    command, user, channel = slack.message_is_direct_mention(message)
+                    command, user, channel = slack.message_is_command(message)
                     if command:
                         handle_command(command, channel, user)
-                time.sleep(slack.rtm_read_delay)
+                time.sleep(slack.RTM_READ_DELAY)
         else:
             log.error("Connection to Slack failed!")
     except Exception as err:
