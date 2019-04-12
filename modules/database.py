@@ -29,8 +29,8 @@ def get_player(slack_mention):
     try:
         cursor = cnx.cursor()
         cursor.execute(
-            "SELECT PlayerId, Name, SlackUserId "
-            "FROM players WHERE SlackUserId = ?",
+            "SELECT playerid, name, slackuserid "
+            "FROM players WHERE slackuserid = ?",
             slack_user_id
         )
         result = cursor.fetchone()
@@ -111,7 +111,7 @@ def register_player(slack_user_id):
         player_name = user_info['user']['real_name']
         cursor = cnx.cursor()
         cursor.execute(
-            "INSERT INTO players (Name, SlackUserId) VALUES (?, ?)",
+            "INSERT INTO players (name, slackuserid) VALUES (?, ?)",
             player_name, slack_user_id
         )
         cursor.commit()
@@ -123,8 +123,8 @@ def register_result(p1_id, p2_id, p1_score, p2_score, date):
     cnx = get_connection()
     try:
         cursor = cnx.cursor()
-        cursor.execute("INSERT INTO results (Player1Id, Player2Id, Player1Score, "
-                       "Player2Score, PlayedAt) VALUES (?, ?, ?, ?, ?)",
+        cursor.execute("INSERT INTO results (player1id, player2id, player1score, "
+                       "player2score, playedat) VALUES (?, ?, ?, ?, ?)",
                        p1_id, p2_id, p1_score, p2_score, date)
         cursor.commit()
     finally:
