@@ -2,6 +2,7 @@ __author__ = 'tinglev@kth.se'
 
 import os
 import pyodbc
+from modules import slack
 
 def get_connection():
     return pyodbc.connect(os.environ.get('CONNECTION_STRING'))
@@ -20,13 +21,14 @@ def run_select(query):
     finally:
         cnx.close()
 
-def get_player(player_name):
-    if not player_name:
+def get_player(slack_mention):
+    if not slack_mention:
         return None
+    slack_user_id = slack.mention_to_user_id(slack_mention)
     cnx = get_connection()
     try:
         cursor = cnx.cursor()
-        cursor.execute("SELECT PlayerId, Name, SlackHandle FROM players WHERE name = ?", player_name)
+        cursor.execute("SELECT PlayerId, Name, SlackUserId FROM players WHERE SlackUserId = ?", slack_user_id)
         result = cursor.fetchone()
         if result:
             return result
@@ -38,7 +40,7 @@ def get_all_players():
     cnx = get_connection()
     try:
         cursor = cnx.cursor()
-        cursor.execute("SELECT PlayerId, Name, SlackHandle FROM players")
+        cursor.execute("SELECT PlayerId, Name, SlackUserId FROM players")
         result = cursor.fetchall()
         if result:
             return result
@@ -85,18 +87,22 @@ def get_leaderboard():
     finally:
         cnx.close() 
 
-def player_exists(player_name):
-    return True if get_player(player_name) else False
+def player_exists(slack_mention):
+    return True if get_player(slack_mention) else False
 
-def register_player(player_name, slack_handle):
+def register_player(slack_user_id):
     cnx = get_connection()
+    player_name = ''
     try:
+        user_info = slack.get_user_info(slack_user_id)
+        player_name = user_info['user']['real_name']
         cursor = cnx.cursor()
-        cursor.execute("INSERT INTO players (Name, SlackHandle) VALUES (?, ?)",
-                       player_name, slack_handle)
+        cursor.execute("INSERT INTO players (Name, SlackUserId) VALUES (?, ?)",
+                       player_name, slack_user_id)
         cursor.commit()
     finally:
         cnx.close()
+    return player_name
 
 def register_result(p1_id, p2_id, p1_score, p2_score, date):
     cnx = get_connection()

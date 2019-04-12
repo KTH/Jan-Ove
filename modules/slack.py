@@ -20,6 +20,16 @@ def init():
     log.debug('Bot ID is "%s"', BOT_ID)
     return CLIENT.rtm_connect(with_team_state=False, auto_reconnect=True)
 
+def mention_to_user_id(mention):
+    mention_regex = r'^<@(.+)>$'
+    matches = re.search(mention_regex, mention)
+    if matches:
+        return matches.group(1)
+    return None
+
+def user_id_to_mention(user_id):
+    return f'<@{user_id}>'
+
 def get_rtm_messages(events):
     messages = []
     for event in events:
@@ -58,6 +68,14 @@ def send_ephemeral(channel, user, message, default_message=None):
         user=user,
         text=message or default_message
     )
+
+def get_user_info(slack_handle):
+    result = CLIENT.api_call(
+                'users.info',
+                user=slack_handle
+                )
+    print('Result: ', result)
+    return result
 
 def send_message(channel, message, default_message=None):
     log = logging.getLogger(__name__)

@@ -35,7 +35,7 @@ def handle_command(command, channel, user):
                     f'but was {len(split_commands) - 1}'
                 )
             elif cmd == 'register-player':
-                response = cmd_register_user(split_commands[1], split_commands[2])
+                response = cmd_register_user(split_commands[1])
             elif cmd == 'register-result':
                 response = cmd_register_result(
                     split_commands[1], split_commands[2],

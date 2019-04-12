@@ -1,11 +1,12 @@
 __author__ = 'tinglev@kth.se'
 
+import re
 import datetime
 import modules.slack as slack
 import modules.database as database
 
 def get_commands():
-    return [('register-player', 2),
+    return [('register-player', 1),
             ('register-result', 4),
             ('list-players', 0),
             ('last-5-results', 0),
@@ -33,27 +34,29 @@ def cmd_top_3():
     output = 'The current top 3 players are:\n'
     for index, player in enumerate(tuplelist, 1):
         if index == 1:
-            output += f':trophy: {player[cols["name"]]}!\n'
+            output += f':trophy: {player[cols["name"]]}\n'
         elif index == 2:
-            output += f':second_place_medal: {player[cols["name"]]}!\n'
+            output += f':second_place_medal: {player[cols["name"]]}\n'
         elif index == 3:
-            output += f':third_place_medal: {player[cols["name"]]}!\n'
+            output += f':third_place_medal: {player[cols["name"]]}\n'
     return output
 
-def cmd_register_user(player_name, slack_handle):
-    if database.player_exists(player_name):
+def cmd_register_user(slack_mention):
+    slack_user_id = slack.mention_to_user_id(slack_mention)
+    if not slack_user_id:
+        return 'Invalid slack user id. Did you use a @ ?'
+    if database.player_exists(slack_user_id):
         return 'A player with that name is already registered'
-    slack_handle = slack_handle.replace('@', '')
-    database.register_player(player_name, slack_handle)
-    return f'The player "{player_name}" is now registered for play'
+    database.register_player(slack_user_id)
+    return f'The player "{slack_mention}" is now registered for play'
 
-def cmd_register_result(p1_name, p2_name, p1_score, p2_score):
-    p1_row = database.get_player(p1_name)
-    p2_row = database.get_player(p2_name)
+def cmd_register_result(p1_slack_mention, p2_slack_mention, p1_score, p2_score):
+    p1_row = database.get_player(p1_slack_mention)
+    p2_row = database.get_player(p2_slack_mention)
     if not p1_row:
-        return f'Player "{p1_name}" is not registered for play'
+        return f'Player "{p1_slack_mention}" is not registered for play'
     if not p2_row:
-        return f'Player "{p2_name}" is not registered for play'
+        return f'Player "{p2_slack_mention}" is not registered for play'
     database.register_result(p1_row[0], p2_row[0], p1_score,
                              p2_score, datetime.datetime.now())
     return 'Result registered!'
@@ -67,7 +70,7 @@ def cmd_list_players():
                                  ('Slack handle', 20)])
     for player in players:
         output += create_row([(player[1], 20),
-                              (f'@{player[2]}', 20)])
+                              (f'{slack.user_id_to_mention(player[2])}', 20)])
     output += '```'
     return output
 
@@ -77,14 +80,14 @@ def cmd_last_5_results():
         return 'Not enough data'
     output = '```\n'
     output += create_header_row([('Date', 20),
-                                 ('Player1', 15),
-                                 ('Player2', 15),
+                                 ('Player1', 20),
+                                 ('Player2', 20),
                                  ('Result', 15)])
     for result in results:
         playedat = result[4].strftime('%Y-%m-%d %H:%M')
         output += create_row([(playedat, 20),
-                              (result[0], 15),
-                              (result[1], 15),
+                              (result[0], 20),
+                              (result[1], 20),
                               (f'{result[2]}-{result[3]}', 15)])
     output += '```'
     return output
@@ -114,14 +117,14 @@ def cmd_leaderboard():
         return 'Not enough data'
     cols = get_leaderboard_cols()
     output = '```\n'
-    output += create_header_row([('Name', 15),
+    output += create_header_row([('Name', 20),
                                  ('Score', 10),
                                  ('Games', 10),
                                  ('Wins', 10),
                                  ('Losses', 10),
                                  ('Difference', 15)])
     for player in tuplelist:
-        output += create_row([(player[cols['name']], 15),
+        output += create_row([(player[cols['name']], 20),
                               (player[cols['score']], 10),
                               (player[cols['games']], 10),
                               (player[cols['wins']], 10),
@@ -136,10 +139,10 @@ def cmd_help():
                                     ('Parameters', 40),
                                     ('Description', 0)])
     help_text += create_row([('register-player', 20),
-                             ('player_name slack_handle', 40),
-                             ('Registers a player. Slack handle is what comes after the @', 0)])
+                             ('slack_handle', 40),
+                             ('Registers a slack user for play', 0)])
     help_text += create_row([('register-result', 20),
-                             ('p1_name p2_name p1_score p2_score', 40),
+                             ('p1_slack_handle p2_slack_handle p1_score p2_score', 40),
                              ('Registers a played match', 0)])
     help_text += create_row([('list-players', 20),
                              ('', 40),
