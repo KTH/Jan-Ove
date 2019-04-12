@@ -11,6 +11,7 @@ from modules.commands import (cmd_register_result,
                               cmd_list_players,
                               cmd_last_5_results,
                               cmd_leaderboard,
+                              cmd_top_3,
                               cmd_help)
 
 log_module.init_logging()
@@ -46,6 +47,8 @@ def handle_command(command, channel, user):
                 response = cmd_last_5_results()
             elif cmd == 'leaderboard':
                 response = cmd_leaderboard()
+            elif cmd == 'top-3':
+                response = cmd_top_3()
             elif cmd == 'help':
                 response = cmd_help()
 
@@ -53,7 +56,7 @@ def handle_command(command, channel, user):
         log.error('Error while handling command: %s', error)
         response = ('Sorry, the :whale: refused to do as it was told. Try again ...\n'
                     '```{}```'.format(error))
-    slack.send_ephemeral(channel, user, response, default_response)
+    slack.send_message(channel, response, default_response)
 
 def main():
     log = logging.getLogger(__name__)

@@ -10,7 +10,7 @@ def get_commands():
             ('list-players', 0),
             ('last-5-results', 0),
             ('leaderboard', 0),
-            ('challenge', 2),
+            ('top-3', 0),
             ('help', 0)]
 
 def is_valid_command(command):
@@ -24,6 +24,21 @@ def get_command_arguments(command):
         if command == cmd:
             return args
     return -1
+
+def cmd_top_3():
+    tuplelist = add_score_to_leaderboard(database.get_leaderboard())
+    if not tuplelist:
+        return 'Not enough data'
+    cols = get_leaderboard_cols()
+    output = 'The current top 3 players are:\n'
+    for index, player in enumerate(tuplelist, 1):
+        if index == 1:
+            output += f':trophy: {player[cols["name"]]}!\n'
+        elif index == 2:
+            output += f':second_place_medal: {player[cols["name"]]}!\n'
+        elif index == 3:
+            output += f':third_place_medal: {player[cols["name"]]}!\n'
+    return output
 
 def cmd_register_user(player_name, slack_handle):
     if database.player_exists(player_name):
@@ -44,47 +59,60 @@ def cmd_register_result(p1_name, p2_name, p1_score, p2_score):
 
 def cmd_list_players():
     players = database.get_all_players()
+    if not players:
+        return 'Not enough data'
     output = '```\n'
-    if players:
-        output += create_header_row([('Name', 20),
-                                     ('Slack handle', 20)])
-        for player in players:
-            output += create_row([(player[1], 20),
-                                  (player[2], 20)])
+    output += create_header_row([('Name', 20),
+                                 ('Slack handle', 20)])
+    for player in players:
+        output += create_row([(player[1], 20),
+                              (player[2], 20)])
     output += '```'
     return output
 
 def cmd_last_5_results():
     results = database.get_last_5_results()
+    if not results:
+        return 'Not enough data'
     output = '```\n'
-    if results:
-        output += create_header_row([('Date', 20),
-                                     ('Player1', 15),
-                                     ('Player2', 15),
-                                     ('Result', 15)])
-        for result in results:
-            playedat = result[4].strftime('%Y-%m-%d %H:%M')
-            output += create_row([(playedat, 20),
-                                  (result[0], 15),
-                                  (result[1], 15),
-                                  (f'{result[2]}-{result[3]}', 15)])
+    output += create_header_row([('Date', 20),
+                                 ('Player1', 15),
+                                 ('Player2', 15),
+                                 ('Result', 15)])
+    for result in results:
+        playedat = result[4].strftime('%Y-%m-%d %H:%M')
+        output += create_row([(playedat, 20),
+                              (result[0], 15),
+                              (result[1], 15),
+                              (f'{result[2]}-{result[3]}', 15)])
     output += '```'
     return output
 
-def cmd_leaderboard():
-    players = database.get_leaderboard()
-    cols = {
-        'name': 0, 'games': 1, 'wins': 2,
-        'p_won': 3, 'p_lost': 4, 'score': 5
-    }
+def add_score_to_leaderboard(leaderboard):
+    if not leaderboard:
+        return None
+    cols = get_leaderboard_cols()
     tuplelist = []
-    for player in players:
+    for player in leaderboard:
         tuplelist.append((player[0], player[1], player[2], player[3], player[4],))
     for index, data in enumerate(tuplelist):
         losses = data[cols['games']] - data[cols['wins']]
         tuplelist[index] += ((losses * -0.5) + (data[cols['wins']] * 2),)
-    output = '```\n'
     tuplelist.sort(key=lambda p: p[cols['score']], reverse=True)
+    return tuplelist
+
+def get_leaderboard_cols():
+    return {
+        'name': 0, 'games': 1, 'wins': 2,
+        'p_won': 3, 'p_lost': 4, 'score': 5
+    }
+
+def cmd_leaderboard():
+    tuplelist = add_score_to_leaderboard(database.get_leaderboard())
+    if not tuplelist:
+        return 'Not enough data'
+    cols = get_leaderboard_cols()
+    output = '```\n'
     output += create_header_row([('Name', 15),
                                  ('Score', 10),
                                  ('Games', 10),
@@ -121,6 +149,9 @@ def cmd_help():
     help_text += create_row([('leaderboard', 20),
                              ('', 40),
                              ('Show the current leaderboard', 0)])
+    help_text += create_row([('top-3', 20),
+                             ('', 40),
+                             ('Show the current top 3 players', 0)])
     return help_text + '```'
 
 def create_row(tuple_array):
