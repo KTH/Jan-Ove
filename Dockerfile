@@ -14,15 +14,23 @@ RUN apt-get update && \
 RUN apt-get -y install msodbcsql17 && \
     apt-get -y install unixodbc-dev && \
     apt-get -y install python3-pip && \
-    apt-get -y install libssl1.0
+    apt-get -y install libssl1.0 && \
+    apt-get -y install locales
 
 #RUN apk add --no-cache g++ unixodbc-dev python3-dev libgcc
 
 #RUN pip install --upgrade pip
 RUN pip3 install pipenv
 
-ENV TZ=Europe/Stockholm
+ENV TZ 'Europe/Stockholm'
+RUN echo $TZ > /etc/timezone && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata && \
+    rm /etc/localtime && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    apt-get clean
 ENV LANG C.UTF-8
+ENV LANGUAGE C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # Copy dependencies and install them
