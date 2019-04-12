@@ -8,7 +8,7 @@ from slackclient import SlackClient
 RTM_READ_DELAY = 1
 CLIENT = None
 BOT_ID = None
-TRIGGER_TEXT = '!pingis'
+TRIGGER_TEXT = os.environ.get('BOT_TRIGGER') or '!pingis'
 
 def init():
     global CLIENT, BOT_ID
