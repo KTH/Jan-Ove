@@ -5,43 +5,24 @@ import datetime
 import modules.slack as slack
 import modules.database as database
 
-def get_commands():
-    return [('register-player', 1),
-            ('register-result', 4),
-            ('list-players', 0),
-            ('last-5-results', 0),
-            ('leaderboard', 0),
-            ('top-3', 0),
-            ('help', 0)]
-
 def is_valid_command(command):
-    for (cmd, _) in get_commands():
-        if command == cmd:
-            return True
-    return False
+    for cmd in get_commands():
+        if command == cmd['name']:
+            return cmd
+    return None
 
-def get_command_arguments(command):
-    for (cmd, args) in get_commands():
-        if command == cmd:
-            return args
-    return -1
-
-def cmd_top_3():
-    tuplelist = add_score_to_leaderboard(database.get_leaderboard())
-    if not tuplelist:
+def cmd_top_3(split_commands):
+    results = database.get_leaderboard()
+    if not results or len(results) < 3:
         return 'Not enough data'
-    cols = get_leaderboard_cols()
     output = 'The current top 3 players are:\n'
-    for index, player in enumerate(tuplelist, 1):
-        if index == 1:
-            output += f':trophy: {player[cols["name"]]}\n'
-        elif index == 2:
-            output += f':second_place_medal: {player[cols["name"]]}\n'
-        elif index == 3:
-            output += f':third_place_medal: {player[cols["name"]]}\n'
+    output += f':trophy: {results[0].name}\n'
+    output += f':second_place_medal: {results[1].name}\n'
+    output += f':third_place_medal: {results[2].name}\n'
     return output
 
-def cmd_register_user(slack_mention):
+def cmd_register_user(split_commands):
+    slack_mention = split_commands[1]
     slack_user_id = slack.mention_to_user_id(slack_mention)
     if not slack_user_id:
         return 'Invalid slack user id. Did you use a @ ?'
@@ -50,90 +31,68 @@ def cmd_register_user(slack_mention):
     database.register_player(slack_user_id)
     return f'The player "{slack_mention}" is now registered for play'
 
-def cmd_register_result(p1_slack_mention, p2_slack_mention, p1_score, p2_score):
+def cmd_register_result(split_commands):
+    p1_slack_mention = split_commands[1]
+    p2_slack_mention = split_commands[2]
+    p1_score = split_commands[3]
+    p2_score = split_commands[4]
     p1_row = database.get_player(p1_slack_mention)
     p2_row = database.get_player(p2_slack_mention)
     if not p1_row:
         return f'Player "{p1_slack_mention}" is not registered for play'
     if not p2_row:
         return f'Player "{p2_slack_mention}" is not registered for play'
-    database.register_result(p1_row[0], p2_row[0], p1_score,
+    database.register_result(p1_row.playerid, p2_row.playerid, p1_score,
                              p2_score, datetime.datetime.now())
     return 'Result registered!'
 
-def cmd_list_players():
+def cmd_list_players(split_commands):
     players = database.get_all_players()
     if not players:
         return 'Not enough data'
-    output = '```\n'
-    output += create_header_row([('Name', 20),
-                                 ('Slack handle', 20)])
+    output = create_header_row([('Name', 20),
+                                ('Slack handle', 20)])
     for player in players:
-        output += create_row([(player[1], 20),
-                              (f'{slack.user_id_to_mention(player[2])}', 20)])
-    output += '```'
-    return output
+        output += create_row([(player.name, 20),
+                              (f'{slack.user_id_to_mention(player.slackuserid)}', 20)])
+    return output + '```\n'
 
-def cmd_last_5_results():
+def cmd_last_5_results(split_commands):
     results = database.get_last_5_results()
     if not results:
         return 'Not enough data'
-    output = '```\n'
-    output += create_header_row([('Date', 20),
-                                 ('Player1', 20),
-                                 ('Player2', 20),
-                                 ('Result', 15)])
+    output = create_header_row([('Date', 20),
+                                ('Player1', 20),
+                                ('Player2', 20),
+                                ('Result', 15)])
     for result in results:
-        playedat = result[4].strftime('%Y-%m-%d %H:%M')
+        playedat = result.playedat.strftime('%Y-%m-%d %H:%M')
         output += create_row([(playedat, 20),
-                              (result[0], 20),
-                              (result[1], 20),
-                              (f'{result[2]}-{result[3]}', 15)])
-    output += '```'
-    return output
+                              (result.p1_name, 20),
+                              (result.p2_name, 20),
+                              (f'{result.p1_score}-{result.p2_score}', 15)])
+    return output + '```\n'
 
-def add_score_to_leaderboard(leaderboard):
-    if not leaderboard:
-        return None
-    cols = get_leaderboard_cols()
-    tuplelist = []
-    for player in leaderboard:
-        tuplelist.append((player[0], player[1], player[2], player[3], player[4],))
-    for index, data in enumerate(tuplelist):
-        losses = data[cols['games']] - data[cols['wins']]
-        tuplelist[index] += ((losses * -0.5) + data[cols['wins']],)
-    tuplelist.sort(key=lambda p: p[cols['score']], reverse=True)
-    return tuplelist
-
-def get_leaderboard_cols():
-    return {
-        'name': 0, 'games': 1, 'wins': 2,
-        'p_won': 3, 'p_lost': 4, 'score': 5
-    }
-
-def cmd_leaderboard():
-    tuplelist = add_score_to_leaderboard(database.get_leaderboard())
-    if not tuplelist:
+def cmd_leaderboard(split_commands):
+    results = database.get_leaderboard()
+    if not results:
         return 'Not enough data'
-    cols = get_leaderboard_cols()
-    output = '```\n'
-    output += create_header_row([('Name', 20),
-                                 ('Score', 10),
-                                 ('Games', 10),
-                                 ('Wins', 10),
-                                 ('Losses', 10),
-                                 ('Difference', 15)])
-    for player in tuplelist:
-        output += create_row([(player[cols['name']], 20),
-                              (player[cols['score']], 10),
-                              (player[cols['games']], 10),
-                              (player[cols['wins']], 10),
-                              (player[cols['games']]-player[cols['wins']], 10),
-                              (f'{player[cols["p_won"]]}-{player[cols["p_lost"]]}', 15)])
-    output += '```\n'
-    return output
+    output = create_header_row([('Name', 20),
+                                ('Score', 10),
+                                ('Games', 10),
+                                ('Wins', 10),
+                                ('Losses', 10),
+                                ('Difference', 15)])
+    for result in results:
+        output += create_row([(result.name, 20),
+                              (result.score, 10),
+                              (result.games, 10),
+                              (result.wins, 10),
+                              (result.games - result.wins, 10),
+                              (f'{result.wonpoints}-{result.lostpoints}', 15)])
+    return output + '```\n'
 
-def cmd_help():
+def cmd_help(split_commands):
     help_text = 'Hi! These are commands that I understand:```'
     help_text += create_header_row([('Command', 20),
                                     ('Parameters', 60),
@@ -165,9 +124,49 @@ def create_row(tuple_array):
     return row
 
 def create_header_row(tuple_array):
-    row = create_row(tuple_array)
+    row = '```\n'
+    row += create_row(tuple_array)
     row += create_separator_row(len(row))
     return row
 
 def create_separator_row(width):
     return '\n' + ''.join(['-'] * width)
+
+def get_commands():
+    return [
+        {
+            'name': 'register-player',
+            'params': 1,
+            'func': cmd_register_user
+        },
+        {
+            'name': 'list-players',
+            'params': 0,
+            'func': cmd_list_players
+        },
+        {
+            'name': 'last-5-results',
+            'params': 0,
+            'func': cmd_last_5_results
+        },
+        {
+            'name': 'register-result',
+            'params': 4,
+            'func': cmd_register_result
+        },
+        {
+            'name': 'leaderboard',
+            'params': 0,
+            'func': cmd_leaderboard
+        },
+        {
+            'name': 'top-3',
+            'params': 0,
+            'func': cmd_top_3
+        },
+        {
+            'name': 'help',
+            'params': 0,
+            'func': cmd_help
+        }
+    ]

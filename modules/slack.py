@@ -48,17 +48,6 @@ def message_is_command(message):
         log.debug('Edited message ignored "%s". Error: "%s".', message, err)
     return (None, None, None)
 
-def message_is_direct_mention(message):
-    try:
-        log = logging.getLogger(__name__)
-        mention_regex = r'^<@(|[WU].+?)>(.*)'
-        matches = re.search(mention_regex, message['text'])
-        if matches and matches.group(1) == BOT_ID and 'subtype' not in message:
-            return matches.group(2).strip(), message['user'], message['channel']
-    except Exception as err:
-        log.debug('Edited message ignored "%s". Error: "%s".', message, err)
-    return (None, None, None)
-
 def send_ephemeral(channel, user, message, default_message=None):
     log = logging.getLogger(__name__)
     log.debug('Sending eph to ch "%s" user "%s" msg "%s"', channel, user, message)
