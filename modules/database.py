@@ -45,7 +45,7 @@ def get_all_players():
     try:
         cursor = cnx.cursor()
         cursor.execute(
-            "SELECT PlayerId, Name, SlackUserId FROM players"
+            "SELECT playerid, name, slackuserid FROM players"
         )
         result = cursor.fetchall()
         if result:
