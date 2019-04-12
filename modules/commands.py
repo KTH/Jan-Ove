@@ -136,25 +136,25 @@ def cmd_leaderboard():
 def cmd_help():
     help_text = 'Hi! These are commands that I understand:```'
     help_text += create_header_row([('Command', 20),
-                                    ('Parameters', 40),
+                                    ('Parameters', 60),
                                     ('Description', 0)])
     help_text += create_row([('register-player', 20),
-                             ('slack_handle', 40),
+                             ('slack_handle', 60),
                              ('Registers a slack user for play', 0)])
     help_text += create_row([('register-result', 20),
-                             ('p1_slack_handle p2_slack_handle p1_score p2_score', 40),
+                             ('p1_slack_handle p2_slack_handle p1_score p2_score', 60),
                              ('Registers a played match', 0)])
     help_text += create_row([('list-players', 20),
-                             ('', 40),
+                             ('', 60),
                              ('Lists all registered players', 0)])
     help_text += create_row([('last-5-results', 20),
-                             ('', 40),
+                             ('', 60),
                              ('Lists the last 5 played games', 0)])
     help_text += create_row([('leaderboard', 20),
-                             ('', 40),
+                             ('', 60),
                              ('Show the current leaderboard', 0)])
     help_text += create_row([('top-3', 20),
-                             ('', 40),
+                             ('', 60),
                              ('Show the current top 3 players', 0)])
     return help_text + '```'
 
