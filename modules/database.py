@@ -145,7 +145,8 @@ def create_new_season(season_name):
 
 def get_current_season():
     return run_select(
-        "SELECT FROM seasons WHERE endedat = NULL",
+        "SELECT seasonid, name, startedat, endedat FROM seasons "
+        "WHERE endedat = NULL",
         fetch_func=fetchone
     )
 
