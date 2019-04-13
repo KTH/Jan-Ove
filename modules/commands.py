@@ -100,31 +100,19 @@ def cmd_leaderboard(split_commands):
     return output + '```\n'
 
 def cmd_help(split_commands):
+    column_widths = [20, 60, 0]
     help_text = 'Hi! These are commands that I understand:\n'
     help_text += create_header_row([('Command', 20),
                                     ('Parameters', 60),
                                     ('Description', 0)])
-    help_text += create_row([('register-player', 20),
-                             ('slack_handle', 60),
-                             ('Registers a slack user for play', 0)])
-    help_text += create_row([('register-result', 20),
-                             ('p1_slack_handle p2_slack_handle p1_score p2_score', 60),
-                             ('Registers a played match', 0)])
-    help_text += create_row([('list-players', 20),
-                             ('', 60),
-                             ('Lists all registered players', 0)])
-    help_text += create_row([('last-5-results', 20),
-                             ('', 60),
-                             ('Lists the last 5 played games', 0)])
-    help_text += create_row([('leaderboard', 20),
-                             ('', 60),
-                             ('Show the current leaderboard', 0)])
-    help_text += create_row([('undo-last-result', 20),
-                             ('', 60),
-                             ('Deletes the last entered result', 0)])
-    help_text += create_row([('top-3', 20),
-                             ('', 60),
-                             ('Show the current top 3 players', 0)])
+    for command in get_commands():
+        help_text += create_row(
+            [
+                (command['name'], column_widths[0]),
+                (command['param_names'], column_widths[1]),
+                (command['help_text'], column_widths[2])
+            ]
+        )
     return help_text + '```'
 
 def create_row(tuple_array):
@@ -147,41 +135,57 @@ def get_commands():
         {
             'name': 'register-player',
             'params': 1,
+            'param_names': 'slack_handle',
+            'help_text': 'Registers a slack user for play',
             'func': cmd_register_user
         },
         {
             'name': 'list-players',
             'params': 0,
+            'param_names': '',
+            'help_text': 'List all registered players',
             'func': cmd_list_players
         },
         {
             'name': 'last-5-results',
             'params': 0,
+            'param_names': '',
+            'help_text': 'List the result of the last 5 played games',
             'func': cmd_last_5_results
         },
         {
             'name': 'register-result',
             'params': 4,
+            'param_names': 'p1_slack_handle p2_slack_handle p1_score p2_score',
+            'help_text': 'Register the result of a game',
             'func': cmd_register_result
         },
         {
             'name': 'leaderboard',
             'params': 0,
+            'param_names': '',
+            'help_text': 'Shows the current leaderboard',
             'func': cmd_leaderboard
         },
         {
             'name': 'top-3',
             'params': 0,
+            'param_names': '',
+            'help_text': 'Show the current top 3 players',
             'func': cmd_top_3
         },
         {
             'name': 'undo-last-result',
             'params': 0,
+            'param_names': '',
+            'help_text': 'Deletes the last registered result',
             'func': cmd_undo_last_result
         },
         {
             'name': 'help',
             'params': 0,
+            'param_names': '',
+            'help_text': 'Shows this help',
             'func': cmd_help
         }
     ]

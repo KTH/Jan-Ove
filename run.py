@@ -25,7 +25,8 @@ def handle_command(command, channel, user):
                     f'Should be {command["params"]} '
                     f'but was {len(split_commands) - 1}'
                 )
-            response = command['func'](split_commands)
+            else:
+                response = command['func'](split_commands)
 
     except ReadTimeout as error:
         log.error('Error while handling command: %s', error)
@@ -36,6 +37,7 @@ def handle_command(command, channel, user):
 def read_and_handle_rtm():
     log = logging.getLogger(__name__)
     log.debug('Checking for new messages')
+    rtm_read_delay_secs = 1
     rtm_messages = []
     try:
         rtm_messages = slack.get_rtm_messages(slack.rtm_read())
@@ -49,7 +51,7 @@ def read_and_handle_rtm():
         command, user, channel = slack.message_is_command(message)
         if command:
             handle_command(command, channel, user)
-    time.sleep(slack.RTM_READ_DELAY)
+    time.sleep(rtm_read_delay_secs)
 
 def main():
     log = logging.getLogger(__name__)
