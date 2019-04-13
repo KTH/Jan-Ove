@@ -1,4 +1,4 @@
-# Jan-Ove
+# Jan-Ove :chart_with_upwards_trend:
 
 ```
 常青树 Cháng Qīng Shù ("Evergreen Tree")
