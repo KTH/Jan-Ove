@@ -16,7 +16,7 @@ def cmd_undo_last_result(slack_client, split_commands):
     latest_result = database.get_latest_result()
     if not latest_result:
         return 'Not enough data'
-    database.delete_result(latest_result[0].resultid)
+    database.delete_result(latest_result.resultid)
     return 'Latest result deleted'
 
 def cmd_top_3(slack_client, split_commands):
