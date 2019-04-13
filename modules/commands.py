@@ -11,6 +11,13 @@ def is_valid_command(command):
             return cmd
     return None
 
+def cmd_undo_last_result(split_commands):
+    latest_result = database.get_latest_result()
+    if not latest_result:
+        return 'Not enough data'
+    database.delete_result(latest_result[0].resultid)
+    return 'Latest result deleted'
+
 def cmd_top_3(split_commands):
     results = database.get_leaderboard()
     if not results or len(results) < 3:
@@ -112,6 +119,9 @@ def cmd_help(split_commands):
     help_text += create_row([('leaderboard', 20),
                              ('', 60),
                              ('Show the current leaderboard', 0)])
+    help_text += create_row([('undo-last-result', 20),
+                             ('', 60),
+                             ('Deletes the last entered result', 0)])
     help_text += create_row([('top-3', 20),
                              ('', 60),
                              ('Show the current top 3 players', 0)])
@@ -163,6 +173,11 @@ def get_commands():
             'name': 'top-3',
             'params': 0,
             'func': cmd_top_3
+        },
+        {
+            'name': 'undo-last-result',
+            'params': 0,
+            'func': cmd_undo_last_result
         },
         {
             'name': 'help',
