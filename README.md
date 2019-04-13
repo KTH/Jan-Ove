@@ -20,8 +20,9 @@ Configuration is done through environment variables:
 ## Running locally
 
 1) Install docker and make sure it's running
-2) Create a file named `.env` in the project root with the required environment variables (see above)
-3) Run `docker-compose up --build`
+2) [Create a Slack bot app for your workspace](https://get.slack.help/hc/en-us/articles/115005265703-Create-a-bot-for-your-workspace#-create-a-bot)
+3) Create a file named `.env` in the project root with the required environment variables (see above)
+4) Run `docker-compose up --build`
 
 # How to use
 
