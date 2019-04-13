@@ -83,7 +83,7 @@ def get_last_5_results():
         "r.player1score AS p1_score, r.player2score AS p2_score, "
         "r.playedat AS playedat "
         "FROM results AS r "
-        "WHERE r.seasonid = ?"
+        "WHERE r.seasonid = ? "
         "JOIN players AS p1 ON r.player1id = p1.playerid "
         "JOIN players AS p2 ON r.player2id = p2.playerid "
         "ORDER BY playedat DESC",
@@ -102,13 +102,14 @@ def get_leaderboard():
     results = run_select(
         "SELECT 0 AS score, p.name AS name, COUNT(*) AS games, "
         "(ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player1id AND player1score > player2score GROUP BY player1id), 0) + "
-        "ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player2id AND player2score > player1score GROUP BY player2id), 0)) AS wins, "
+        "   ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player2id AND player2score > player1score GROUP BY player2id), 0)) AS wins, "
         "(ISNULL((SELECT sum(player1score) FROM results WHERE seasonid = ? AND p.playerid = player1id GROUP BY player1id), 0) + "
-        "ISNULL((SELECT sum(player2score) FROM results WHERE seasonid = ? AND p.playerid = player2id GROUP BY player2id), 0)) AS wonpoints, "
+        "   ISNULL((SELECT sum(player2score) FROM results WHERE seasonid = ? AND p.playerid = player2id GROUP BY player2id), 0)) AS wonpoints, "
         "(ISNULL((SELECT sum(player1score) FROM results WHERE seasonid = ? AND p.playerid = player2id GROUP BY player2id), 0) + "
-        "ISNULL((SELECT sum(player2score) FROM results WHERE seasonid = ? AND p.playerid = player1id GROUP BY player1id), 0)) AS lostpoints "
+        "   ISNULL((SELECT sum(player2score) FROM results WHERE seasonid = ? AND p.playerid = player1id GROUP BY player1id), 0)) AS lostpoints "
         "FROM players AS p "
-        "JOIN results AS r ON p.playerid = r.player1id OR p.playerid = r.player2id AND r.seasonid = ? "
+        "JOIN results AS r ON p.playerid = r.player1id OR p.playerid = r.player2id "
+        "WHERE r.seasonid = ? "
         "GROUP BY p.name, p.playerid",
         current_season_id, current_season_id, current_season_id,
         current_season_id, current_season_id, current_season_id,
