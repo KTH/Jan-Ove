@@ -6,7 +6,7 @@
 
 Jan-Ove is a table tennis bot used at KTH to make sure no loss or win goes forgotten.
 
-# How to use
+# How to run
 
 ## Configuration
 
