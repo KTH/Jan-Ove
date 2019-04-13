@@ -124,8 +124,8 @@ def drop_and_create_tables():
     run_commit(
         "CREATE TABLE players ("
         "playerid INT IDENTITY(1,1) PRIMARY KEY, "
-        "name VARCHAR NOT NULL, "
-        "slackuserid VARCHAR NOT NULL"
+        "name VARCHAR(50) NOT NULL, "
+        "slackuserid(15) VARCHAR NOT NULL"
         ")"
     )
     run_commit(
