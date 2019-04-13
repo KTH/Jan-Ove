@@ -157,7 +157,7 @@ def register_result(p1_id, p2_id, p1_score, p2_score, date):
         return 'There is no active season'
     run_commit(
         "INSERT INTO results (player1id, player2id, player1score, "
-        "player2score, playedat, seasonid) VALUES (?, ?, ?, ?, ?)",
+        "player2score, playedat, seasonid) VALUES (?, ?, ?, ?, ?, ?)",
         p1_id, p2_id, p1_score, p2_score, date, current_season.seasonid
     )
     return None
