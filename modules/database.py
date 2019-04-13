@@ -85,7 +85,9 @@ def get_last_5_results():
         "FROM results AS r "
         "JOIN players AS p1 ON r.player1id = p1.playerid "
         "JOIN players AS p2 ON r.player2id = p2.playerid "
-        "ORDER BY playedat DESC"
+        "WHERE r.seasonid = ?"
+        "ORDER BY playedat DESC",
+        current_season.seasonid
     )
     if not results:
         return (None, 'Not enough data')
@@ -107,9 +109,11 @@ def get_leaderboard():
         "ISNULL((SELECT sum(player2score) FROM results WHERE seasonid = ? AND p.playerid = player1id GROUP BY player1id), 0)) AS lostpoints "
         "FROM players AS p "
         "JOIN results AS r ON p.playerid = r.player1id OR p.playerid = r.player2id "
+        "WHERE r.seasonid = ?"
         "GROUP BY p.name, p.playerid",
         current_season_id, current_season_id, current_season_id,
-        current_season_id, current_season_id, current_season_id
+        current_season_id, current_season_id, current_season_id,
+        current_season_id
     )
     if results:
         for result in results:
