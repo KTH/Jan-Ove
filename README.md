@@ -12,10 +12,10 @@ Jan-Ove is a table tennis bot used at KTH to make sure no loss or win goes forgo
 
 Configuration is done through environment variables:
 
-* (required) `CONNECTION_STRING` - An ODBC connection string to a sql database
-* (required) `SLACK_BOT_TOKEN` - The bot app token retrieved from your Slack installation
-* (optional) `TRIGGER_TEXT` - The text for the bot to trigger on. Default is `!pingis`
-* (optional) `DEBUG` - Set this to whatever to enable debug logging
+* _required_ `CONNECTION_STRING` - An ODBC connection string to a sql database
+* _required_ `SLACK_BOT_TOKEN` - The bot app token retrieved from your Slack installation
+* `TRIGGER_TEXT` - The text for the bot to trigger on. Default is `!pingis`
+* `DEBUG` - Set this to whatever to enable debug logging
 
 ## Running locally
 
