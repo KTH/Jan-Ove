@@ -93,8 +93,8 @@ def get_leaderboard():
 def player_exists(slack_mention):
     return True if get_player(slack_mention) else False
 
-def register_player(slack_user_id):
-    user_info = slack.get_user_info(slack_user_id)
+def register_player(slack_client, slack_user_id):
+    user_info = slack.get_user_info(slack_client, slack_user_id)
     player_name = user_info['user']['real_name']
     run_commit(
         "INSERT INTO players (name, slackuserid) VALUES (?, ?)",

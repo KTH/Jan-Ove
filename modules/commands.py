@@ -11,14 +11,14 @@ def is_valid_command(command):
             return cmd
     return None
 
-def cmd_undo_last_result(split_commands):
+def cmd_undo_last_result(slack_client, split_commands):
     latest_result = database.get_latest_result()
     if not latest_result:
         return 'Not enough data'
     database.delete_result(latest_result[0].resultid)
     return 'Latest result deleted'
 
-def cmd_top_3(split_commands):
+def cmd_top_3(slack_client, split_commands):
     results = database.get_leaderboard()
     if not results or len(results) < 3:
         return 'Not enough data'
@@ -28,17 +28,17 @@ def cmd_top_3(split_commands):
     output += f':third_place_medal: {results[2].name}\n'
     return output
 
-def cmd_register_user(split_commands):
+def cmd_register_user(slack_client, split_commands):
     slack_mention = split_commands[1]
     slack_user_id = slack.mention_to_user_id(slack_mention)
     if not slack_user_id:
         return 'Invalid slack user id. Did you use a @ ?'
     if database.player_exists(slack_user_id):
         return 'A player with that name is already registered'
-    database.register_player(slack_user_id)
+    database.register_player(slack_client, slack_user_id)
     return f'The player "{slack_mention}" is now registered for play'
 
-def cmd_register_result(split_commands):
+def cmd_register_result(slack_client, split_commands):
     p1_slack_mention = split_commands[1]
     p2_slack_mention = split_commands[2]
     p1_score = split_commands[3]
@@ -53,7 +53,7 @@ def cmd_register_result(split_commands):
                              p2_score, datetime.datetime.now())
     return 'Result registered!'
 
-def cmd_list_players(split_commands):
+def cmd_list_players(slack_client, split_commands):
     players = database.get_all_players()
     if not players:
         return 'Not enough data'
@@ -64,7 +64,7 @@ def cmd_list_players(split_commands):
                               (f'{slack.user_id_to_mention(player.slackuserid)}', 20)])
     return output + '```\n'
 
-def cmd_last_5_results(split_commands):
+def cmd_last_5_results(slack_client, split_commands):
     results = database.get_last_5_results()
     if not results:
         return 'Not enough data'
@@ -80,7 +80,7 @@ def cmd_last_5_results(split_commands):
                               (f'{result.p1_score}-{result.p2_score}', 15)])
     return output + '```\n'
 
-def cmd_leaderboard(split_commands):
+def cmd_leaderboard(slack_client, split_commands):
     results = database.get_leaderboard()
     if not results:
         return 'Not enough data'
@@ -99,7 +99,7 @@ def cmd_leaderboard(split_commands):
                               (f'{result.wonpoints}-{result.lostpoints}', 15)])
     return output + '```\n'
 
-def cmd_help(split_commands):
+def cmd_help(slack_client, split_commands):
     column_widths = [20, 60, 0]
     help_text = 'Hi! These are commands that I understand:\n'
     help_text += create_header_row([('Command', 20),

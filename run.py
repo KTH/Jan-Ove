@@ -6,7 +6,7 @@ import log as log_module
 from requests.exceptions import ReadTimeout
 from modules import slack, database, commands
 
-def handle_command(command, channel, user):
+def handle_command(slack_client, command, channel, user):
     try:
         log = logging.getLogger(__name__)
         log.info(
@@ -26,21 +26,21 @@ def handle_command(command, channel, user):
                     f'but was {len(split_commands) - 1}'
                 )
             else:
-                response = command['func'](split_commands)
+                response = command['func'](slack_client, split_commands)
 
     except ReadTimeout as error:
         log.error('Error while handling command: %s', error)
         response = ('Sorry, the :whale: refused to do as it was told. Try again ...\n'
                     '```{}```'.format(error))
-    slack.send_message(channel, response, default_response)
+    slack.send_message(slack_client, channel, response, default_response)
 
-def read_and_handle_rtm():
+def read_and_handle_rtm(slack_client):
     log = logging.getLogger(__name__)
     log.debug('Checking for new messages')
     rtm_read_delay_secs = 1
     rtm_messages = []
     try:
-        rtm_messages = slack.get_rtm_messages(slack.rtm_read())
+        rtm_messages = slack.get_rtm_messages(slack.rtm_read(slack_client))
     except Exception:
         log.warning('Timeout when reading from Slack')
     if rtm_messages:
@@ -50,16 +50,17 @@ def read_and_handle_rtm():
         log.debug('Handling message "%s"', message)
         command, user, channel = slack.message_is_command(message)
         if command:
-            handle_command(command, channel, user)
+            handle_command(slack_client, command, channel, user)
     time.sleep(rtm_read_delay_secs)
 
 def main():
     log = logging.getLogger(__name__)
     try:
-        if slack.init() and database.init():
+        slack_client = slack.init()
+        if slack_client and database.init():
             log.info("Jan-Ove connected and running!")
             while True:
-                read_and_handle_rtm()
+                read_and_handle_rtm(slack_client)
         else:
             log.error("Connection to Slack failed!")
     except Exception as err:

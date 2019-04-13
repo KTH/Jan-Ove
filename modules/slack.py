@@ -13,7 +13,8 @@ def init():
     log.debug('Auth test response: %s', auth_test)
     bot_id = auth_test["user_id"]
     log.debug('Bot ID is "%s"', bot_id)
-    return client.rtm_connect(with_team_state=False, auto_reconnect=True)
+    client.rtm_connect(with_team_state=False, auto_reconnect=True)
+    return client
 
 def mention_to_user_id(mention):
     mention_regex = r'^<@(.+)>$'
@@ -44,36 +45,32 @@ def message_is_command(message):
         log.debug('Edited message ignored "%s". Error: "%s".', message, err)
     return (None, None, None)
 
-def send_ephemeral(channel, user, message, default_message=None):
+def send_ephemeral(slack_client, channel, user, message, default_message=None):
     log = logging.getLogger(__name__)
     log.debug('Sending eph to ch "%s" user "%s" msg "%s"', channel, user, message)
-    client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-    client.api_call(
+    slack_client.api_call(
         "chat.postEphemeral",
         channel=channel,
         user=user,
         text=message or default_message
     )
 
-def get_user_info(slack_handle):
-    client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-    result = client.api_call(
+def get_user_info(slack_client, slack_handle):
+    result = slack_client.api_call(
                 'users.info',
                 user=slack_handle
                 )
     print('Result: ', result)
     return result
 
-def send_message(channel, message, default_message=None):
+def send_message(slack_client, channel, message, default_message=None):
     log = logging.getLogger(__name__)
     log.debug('Sending msg to ch "%s" msg "%s"', channel, message)
-    client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-    client.api_call(
+    slack_client.api_call(
         "chat.postMessage",
         channel=channel,
         text=message or default_message
     )
 
-def rtm_read():
-    client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-    return client.rtm_read()
+def rtm_read(slack_client):
+    return slack_client.rtm_read()
