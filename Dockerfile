@@ -4,7 +4,6 @@ RUN mkdir /repo
 
 WORKDIR /repo
 
-# Install git
 ENV ACCEPT_EULA Y
 RUN apt-get update && \
     apt-get -y install curl gnupg2 && \
@@ -17,9 +16,6 @@ RUN apt-get -y install msodbcsql17 && \
     apt-get -y install libssl1.0 && \
     apt-get -y install locales
 
-#RUN apk add --no-cache g++ unixodbc-dev python3-dev libgcc
-
-#RUN pip install --upgrade pip
 RUN pip3 install pipenv
 
 ENV TZ 'Europe/Stockholm'
@@ -33,15 +29,12 @@ ENV LANG C.UTF-8
 ENV LANGUAGE C.UTF-8
 ENV LC_ALL C.UTF-8
 
-# Copy dependencies and install them
 COPY ["Pipfile", "Pipfile"]
 COPY ["Pipfile.lock", "Pipfile.lock"]
 RUN pipenv --python /usr/bin/python3 install
 
-# Copy the code
 COPY ["log.py", "log.py"]
 COPY ["run.py", "run.py"]
 COPY ["modules", "modules"]
 
-# Run the application through pipenv
 CMD ["pipenv", "run", "python", "-u", "run.py"]
