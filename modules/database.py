@@ -83,9 +83,9 @@ def get_last_5_results():
         "r.player1score AS p1_score, r.player2score AS p2_score, "
         "r.playedat AS playedat "
         "FROM results AS r "
-        "WHERE r.seasonid = ? "
         "JOIN players AS p1 ON r.player1id = p1.playerid "
         "JOIN players AS p2 ON r.player2id = p2.playerid "
+        "WHERE r.seasonid = ? "
         "ORDER BY playedat DESC",
         current_season.seasonid
     )
