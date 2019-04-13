@@ -31,9 +31,19 @@ Configuration is done through environment variables:
 
 # How to use
 
-First time usage: run the `!pingis recreate-database` command to create all neccessary tables.
+First time usage: run the `!pingis initialize-database` command to create all neccessary tables.
 
 Then invite the bot to a channel or use private messaging and send `!pingis help` to get a list of commands.
+
+# TL;DR
+
+1) `!pingis register-player @your-slack-handle`
+2) `!pingis register-player @your-arch-nemesis`
+3) `!pingis new-season season_name_without_spaces`
+4) (Play an actual game of table tennis)
+5) `!pingis register-result @your-slack-handle @your-arch-nemesis 15 0`
+6) `!pingis leaderboard`
+7) Much win. Such feelings. Great time.
 
 # Tests
 
