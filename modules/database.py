@@ -111,10 +111,10 @@ def register_result(p1_id, p2_id, p1_score, p2_score, date):
 
 def drop_and_create_tables():
     run_commit(
-        "DROP TABLE IF EXISTS players"
+        "DROP TABLE IF EXISTS results"
     )
     run_commit(
-        "DROP TABLE IF EXISTS results"
+        "DROP TABLE IF EXISTS players"
     )
     run_commit(
         "CREATE TABLE players ("
