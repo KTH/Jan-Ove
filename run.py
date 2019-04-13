@@ -1,5 +1,6 @@
 __author__ = 'tinglev@kth.se'
 
+import os
 import time
 import logging
 import log as log_module
@@ -13,7 +14,8 @@ def handle_command(slack_client, command, channel, user):
             'Handling cmd "%s" on ch "%s" and user "%s"',
             command, channel, user
         )
-        default_response = 'Not sure what you mean. Use *@Jan-Ove help* for help'
+        trigger_text = os.environ.get('BOT_TRIGGER') or '!pingis'
+        default_response = f'Not sure what you mean. Use *{trigger_text} help* for help'
         split_commands = command.split(' ')
         cmd = split_commands[0]
         response = None

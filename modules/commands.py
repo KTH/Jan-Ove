@@ -207,12 +207,12 @@ def get_commands():
             'param_names': '',
             'help_text': 'Shows this help',
             'func': cmd_help
-        },
-        {
-            'name': 'recreate-database',
-            'params': 0,
-            'param_names': '',
-            'help_text': 'ONLY FOR DEVELOPMENT',
-            'func': cmd_recreate_database
-        }
+        }#,
+        # {
+        #     'name': 'recreate-database',
+        #     'params': 0,
+        #     'param_names': '',
+        #     'help_text': 'ONLY FOR DEVELOPMENT',
+        #     'func': cmd_recreate_database
+        # }
     ]
