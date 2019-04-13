@@ -108,3 +108,28 @@ def register_result(p1_id, p2_id, p1_score, p2_score, date):
         "player2score, playedat) VALUES (?, ?, ?, ?, ?)",
         p1_id, p2_id, p1_score, p2_score, date
     )
+
+def drop_and_create_tables():
+    run_commit(
+        "DROP TABLE IF EXISTS players"
+    )
+    run_commit(
+        "DROP TABLE IF EXISTS results"
+    )
+    run_commit(
+        "CREATE TABLE players ("
+        "playerid INT IDENTITY(1,1) PRIMARY KEY, "
+        "name VARCHAR NOT NULL, "
+        "slackuserid VARCHAR NOT NULL"
+        ")"
+    )
+    run_commit(
+        "CREATE TABLE results ("
+        "resultid INT IDENTITY(1,1) PRIMARY KEY, "
+        "player1id int FOREIGN KEY REFERENCES players(playerid), "
+        "player2id int FOREIGN KEY REFERENCES players(playerid), "
+        "player1score int NOT NULL, "
+        "player2score int NOT NULL, "
+        "playedat DATETIME NOT NULL"
+        ")"
+    )

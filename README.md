@@ -8,11 +8,16 @@ Jan-Ove is a table tennis bot used at KTH to make sure no loss or win goes forgo
 
 # How to run
 
+## Requirements
+
+* An MSSQL database (we use an Azure SQL Server at KTH)
+* A host with docker installed
+
 ## Configuration
 
 Configuration is done through environment variables:
 
-* _required_ `CONNECTION_STRING` - An ODBC connection string to a sql database. The bundled `Dockerfile` installs the msodbcsql17 driver, but can easily be modified to install a driver suitable for your need.
+* _required_ `CONNECTION_STRING` - An MSSQL ODBC connection string to a sql database. The bundled `Dockerfile` installs the msodbcsql17 driver, but can easily be modified to install a driver suitable for your need.
 * _required_ `SLACK_BOT_TOKEN` - The bot app token retrieved from your Slack installation
 * `TRIGGER_TEXT` - The text for the bot to trigger on. Default is `!pingis`
 * `DEBUG` - Set this to whatever to enable debug logging

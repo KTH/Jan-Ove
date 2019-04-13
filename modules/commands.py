@@ -115,6 +115,10 @@ def cmd_help(slack_client, split_commands):
         )
     return help_text + '```'
 
+def cmd_recreate_database(slack_client, split_commands):
+    database.drop_and_create_tables()
+    return 'Tables were dropped and recreated'
+
 def create_row(tuple_array):
     row = '\n'
     for info in tuple_array:
@@ -187,5 +191,12 @@ def get_commands():
             'param_names': '',
             'help_text': 'Shows this help',
             'func': cmd_help
+        },
+        {
+            'name': 'recreate_database',
+            'params': 0,
+            'param_names': '',
+            'help_text': 'ONLY FOR DEVELOPMENT',
+            'func': cmd_recreate_database
         }
     ]
