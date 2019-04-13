@@ -1,6 +1,7 @@
 __author__ = 'tinglev@kth.se'
 
 import re
+import logging
 import datetime
 import modules.slack as slack
 import modules.database as database
@@ -29,12 +30,14 @@ def cmd_top_3(slack_client, split_commands):
     return output
 
 def cmd_register_user(slack_client, split_commands):
+    log = logging.getLogger(__name__)
     slack_mention = split_commands[1]
     slack_user_id = slack.mention_to_user_id(slack_mention)
     if not slack_user_id:
         return 'Invalid slack user id. Did you use a @ ?'
     if database.player_exists(slack_user_id):
         return 'A player with that name is already registered'
+    log.debug('Registering user "%s"', slack_user_id)
     database.register_player(slack_client, slack_user_id)
     return f'The player "{slack_mention}" is now registered for play'
 

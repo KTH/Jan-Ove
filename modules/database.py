@@ -1,6 +1,7 @@
 __author__ = 'tinglev@kth.se'
 
 import os
+import logging
 import pyodbc
 from modules import slack
 
@@ -13,6 +14,8 @@ def init():
     return True
 
 def run_select(query, *params):
+    log = logging.getLogger(__name__)
+    log.debug('Running select with params "%s"', params)
     cnx = get_connection()
     try:
         cursor = cnx.cursor()
@@ -25,6 +28,8 @@ def run_select(query, *params):
         cnx.close()
 
 def run_commit(query, *params):
+    log = logging.getLogger(__name__)
+    log.debug('Running commit with params "%s"', params)
     cnx = get_connection()
     try:
         cursor = cnx.cursor()
