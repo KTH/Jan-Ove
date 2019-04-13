@@ -14,14 +14,20 @@ def init():
     cnx.close()
     return True
 
-def run_select(query, *params):
+def fetchall(cursor):
+    return cursor.fetchall()
+
+def fetchone(cursor):
+    return cursor.fetchone()
+
+def run_select(query, *params, fetch_func=fetchall):
     log = logging.getLogger(__name__)
     log.debug('Running select with params "%s"', params)
     cnx = get_connection()
     try:
         cursor = cnx.cursor()
         cursor.execute(query, params)
-        result = cursor.fetchall()
+        result = fetch_func(cursor)
         if result:
             return result
         return None
@@ -41,7 +47,8 @@ def run_commit(query, *params):
 
 def get_latest_result():
     return run_select(
-        "SELECT TOP 1 resultid FROM results ORDER BY playedat DESC"
+        "SELECT TOP 1 resultid FROM results ORDER BY playedat DESC",
+        fetch_func=fetchone
     )
 
 def delete_result(resultid):
@@ -57,7 +64,8 @@ def get_player(slack_mention):
     return run_select(
         "SELECT playerid, name, slackuserid "
         "FROM players WHERE slackuserid = ?",
-        slack_user_id
+        slack_user_id,
+        fetch_func=fetchone
     )
 
 def get_all_players():
@@ -88,7 +96,7 @@ def get_leaderboard():
     current_season = get_current_season()
     if not current_season:
         return (None, 'There is no active season')
-    current_season_id = current_season[0].seasonid
+    current_season_id = current_season.seasonid
     results = run_select(
         "SELECT 0 AS score, p.name AS name, COUNT(*) AS games, "
         "(ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player1id AND player1score > player2score GROUP BY player1id), 0) + "
@@ -128,7 +136,7 @@ def create_new_season(season_name):
         # End the current season
         run_commit(
             "UPDATE seasons SET endedat=? WHERE seasonid = ?",
-            datetime.datetime.now(), current_season[0].seasonid
+            datetime.datetime.now(), current_season.seasonid
         )
     run_commit(
         "INSERT INTO seasons (name, startedat) VALUES (?)",
@@ -137,7 +145,8 @@ def create_new_season(season_name):
 
 def get_current_season():
     return run_select(
-        "SELECT FROM seasons WHERE endedat = NULL"
+        "SELECT FROM seasons WHERE endedat = NULL",
+        fetch_func=fetchone
     )
 
 # Returns error text on error, else None
