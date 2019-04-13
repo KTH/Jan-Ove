@@ -1,2 +1,31 @@
 # Jan-Ove
-Table tennis bot for Slack
+
+```
+常青树 Cháng Qīng Shù ("Evergreen Tree")
+```
+
+Jan-Ove is a table tennis bot used at KTH to make sure no loss or win goes forgotten.
+
+# How to use
+
+## Configuration
+
+Configuration is done through environment variables:
+
+* (required) `CONNECTION_STRING` - An ODBC connection string to a sql database
+* (required) `SLACK_BOT_TOKEN` - The bot app token retrieved from your Slack installation
+* (optional) `TRIGGER_TEXT` - The text for the bot to trigger on. Default is `!pingis`
+
+## Running locally
+
+1) Install docker and make sure it's running
+2) Create a file named `.env` in the project root with the required environment variables (see above)
+3) Run `docker-compose up --build`
+
+# How to use
+
+Invite the bot to a channel or use private messaging. Send `!pingis help` to get a list of commands
+
+# Tests
+
+lol, no
