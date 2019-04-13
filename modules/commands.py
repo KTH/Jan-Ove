@@ -52,8 +52,10 @@ def cmd_register_result(slack_client, split_commands):
         return f'Player "{p1_slack_mention}" is not registered for play'
     if not p2_row:
         return f'Player "{p2_slack_mention}" is not registered for play'
-    database.register_result(p1_row.playerid, p2_row.playerid, p1_score,
-                             p2_score, datetime.datetime.now())
+    error = database.register_result(p1_row.playerid, p2_row.playerid, p1_score,
+                                     p2_score, datetime.datetime.now())
+    if error:
+        return error
     return 'Result registered!'
 
 def cmd_list_players(slack_client, split_commands):
@@ -68,9 +70,9 @@ def cmd_list_players(slack_client, split_commands):
     return output + '```\n'
 
 def cmd_last_5_results(slack_client, split_commands):
-    results = database.get_last_5_results()
-    if not results:
-        return 'Not enough data'
+    (results, error) = database.get_last_5_results()
+    if error:
+        return error
     output = create_header_row([('Date', 20),
                                 ('Player1', 20),
                                 ('Player2', 20),
@@ -84,9 +86,9 @@ def cmd_last_5_results(slack_client, split_commands):
     return output + '```\n'
 
 def cmd_leaderboard(slack_client, split_commands):
-    results = database.get_leaderboard()
-    if not results:
-        return 'Not enough data'
+    (results, error) = database.get_leaderboard()
+    if error:
+        return error
     output = create_header_row([('Name', 20),
                                 ('Score', 10),
                                 ('Games', 10),
@@ -117,6 +119,10 @@ def cmd_help(slack_client, split_commands):
             ]
         )
     return help_text + '```'
+
+def cmd_create_new_season(slack_client, split_commands):
+    database.create_new_season(split_commands[1])
+    return f'The new season "{split_commands[1]}" has started!'
 
 def cmd_recreate_database(slack_client, split_commands):
     database.drop_and_create_tables()
@@ -152,6 +158,13 @@ def get_commands():
             'param_names': '',
             'help_text': 'List all registered players',
             'func': cmd_list_players
+        },
+        {
+            'name': 'new-season',
+            'params': 1,
+            'param_names': 'season_name_without_spaces',
+            'help_text': 'Create a new season, starting now',
+            'func': cmd_create_new_season           
         },
         {
             'name': 'last-5-results',

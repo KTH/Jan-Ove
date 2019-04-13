@@ -31,7 +31,9 @@ Configuration is done through environment variables:
 
 # How to use
 
-Invite the bot to a channel or use private messaging. Send `!pingis help` to get a list of commands
+First time usage: run the `!pingis recreate-database` command to create all neccessary tables.
+
+Then invite the bot to a channel or use private messaging and send `!pingis help` to get a list of commands.
 
 # Tests
 
