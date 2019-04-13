@@ -135,11 +135,11 @@ def create_new_season(season_name):
     if current_season:
         # End the current season
         run_commit(
-            "UPDATE seasons SET endedat=? WHERE seasonid = ?",
+            "UPDATE seasons SET endedat = ? WHERE seasonid = ?",
             datetime.datetime.now(), current_season.seasonid
         )
     run_commit(
-        "INSERT INTO seasons (name, startedat) VALUES (?)",
+        "INSERT INTO seasons (name, startedat) VALUES (?, ?)",
         season_name, datetime.datetime.now()
     )
 
