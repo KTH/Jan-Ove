@@ -100,7 +100,7 @@ def cmd_leaderboard(split_commands):
     return output + '```\n'
 
 def cmd_help(split_commands):
-    help_text = 'Hi! These are commands that I understand:```'
+    help_text = 'Hi! These are commands that I understand:\n'
     help_text += create_header_row([('Command', 20),
                                     ('Parameters', 60),
                                     ('Description', 0)])
