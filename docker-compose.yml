@@ -5,20 +5,10 @@ services:
     build: .
     env_file:
       - .env
-    labels:
-      - se.kth.team=team-pipeline
-      - se.kth.cluster=management
-      - se.kth.slackChannels="#team-pipeline-build"
-      - se.kth.publicName.english="Jan-Ove"
-      - se.kth.publicName.swedish="Jan-Ove"
-      - se.kth.description.english="KTH table tennis bot"
-      - se.kth.description.swedish="KTH table tennis bot"
-      - se.kth.importance="low"
+
     volumes:
       - /var/run:/var/run
       - ~/.docker:/root/.docker
-    environment: 
-      BUTTERNUT_VERSION: "~1.0.0"
 
     deploy:
       # How many replicas should be running of this service?
