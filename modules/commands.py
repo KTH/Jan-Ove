@@ -196,7 +196,7 @@ def get_commands():
             'func': cmd_help
         },
         {
-            'name': 'recreate_database',
+            'name': 'recreate-database',
             'params': 0,
             'param_names': '',
             'help_text': 'ONLY FOR DEVELOPMENT',

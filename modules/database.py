@@ -125,7 +125,7 @@ def drop_and_create_tables():
         "CREATE TABLE players ("
         "playerid INT IDENTITY(1,1) PRIMARY KEY, "
         "name VARCHAR(50) NOT NULL, "
-        "slackuserid(15) VARCHAR NOT NULL"
+        "slackuserid VARCHAR(15) NOT NULL"
         ")"
     )
     run_commit(
