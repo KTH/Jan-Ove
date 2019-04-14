@@ -162,9 +162,9 @@ def get_commands():
         {
             'name': 'new-season',
             'params': 1,
-            'param_names': 'season_name_without_spaces',
+            'param_names': '"Season name in quotes"',
             'help_text': 'Create a new season, starting now',
-            'func': cmd_create_new_season           
+            'func': cmd_create_new_season
         },
         {
             'name': 'last-5-results',

@@ -5,30 +5,30 @@ import time
 import logging
 import log as log_module
 from requests.exceptions import ReadTimeout
-from modules import slack, database, commands
+from modules import slack, database, commands, util
 
-def handle_command(slack_client, command, channel, user):
+def handle_command(slack_client, args, channel, user):
     try:
         log = logging.getLogger(__name__)
         log.info(
             'Handling cmd "%s" on ch "%s" and user "%s"',
-            command, channel, user
+            args, channel, user
         )
         trigger_text = os.environ.get('BOT_TRIGGER') or '!pingis'
         default_response = f'Not sure what you mean. Use *{trigger_text} help* for help'
-        split_commands = command.split(' ')
-        cmd = split_commands[0]
+        split_args = util.args_to_commands(args)
+        cmd = split_args[0]
         response = None
         command = commands.is_valid_command(cmd)
         if command:
-            if (len(split_commands) - 1) != command['params']:
+            if (len(split_args) - 1) != command['params']:
                 response = (
                     f'Wrong number of arguments for command. '
                     f'Should be {command["params"]} '
-                    f'but was {len(split_commands) - 1}'
+                    f'but was {len(split_args) - 1}'
                 )
             else:
-                response = command['func'](slack_client, split_commands)
+                response = command['func'](slack_client, split_args)
 
     except ReadTimeout as error:
         log.error('Error while handling command: %s', error)

@@ -39,7 +39,7 @@ Then invite the bot to a channel or use private messaging and send `!pingis help
 
 1) `!pingis register-player @your-slack-handle`
 2) `!pingis register-player @your-arch-nemesis`
-3) `!pingis new-season season_name_without_spaces`
+3) `!pingis new-season "The new cool season"`
 4) (Play an actual game of table tennis)
 5) `!pingis register-result @your-slack-handle @your-arch-nemesis 15 0`
 6) `!pingis leaderboard`
@@ -47,4 +47,7 @@ Then invite the bot to a channel or use private messaging and send `!pingis help
 
 # Tests
 
-lol, no
+Very limited. To run the few that exist:
+
+1) `pipenv install --dev`
+2) `./run_unit_tests.sh`
