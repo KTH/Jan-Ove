@@ -148,7 +148,7 @@ def get_commands():
         {
             'name': 'register-player',
             'params': 1,
-            'param_names': 'slack_handle',
+            'param_names': '@slack-name',
             'help_text': 'Registers a slack user for play',
             'func': cmd_register_user
         },
@@ -176,7 +176,7 @@ def get_commands():
         {
             'name': 'register-result',
             'params': 4,
-            'param_names': 'p1_slack_handle p2_slack_handle p1_score p2_score',
+            'param_names': '@player1-name @player2-name p1_score p2_score',
             'help_text': 'Register the result of a game',
             'func': cmd_register_result
         },
