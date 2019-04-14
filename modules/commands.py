@@ -134,8 +134,8 @@ def create_row(tuple_array):
         row += '{}'.format(info[0]).ljust(info[1])
     return row
 
-def create_header_row(tuple_array):
-    row = '```\n'
+def create_header_row(tuple_array, prefix='```\n'):
+    row = prefix
     row += create_row(tuple_array)
     row += create_separator_row(len(row))
     return row
