@@ -12,6 +12,23 @@ def is_valid_command(command):
             return cmd
     return None
 
+def cmd_list_seasons(slack_client, split_commands):
+    seasons = database.get_all_seasons()
+    output = create_header_row([('Name', 20),
+                                ('Started at', 20),
+                                ('Ended at', 20)])
+    for season in seasons:
+        startedat = season.startedat.strftime('%Y-%m-%d %H:%M')
+        if season.endedat:
+            endedat = season.endedat.strftime('%Y-%m-%d %H:%M')
+        else:
+            endedat = 'Current'
+        output += create_row([(season.name, 20),
+                              (startedat, 20),
+                              (endedat, 20)])
+
+    return output + '```\n'
+
 def cmd_undo_last_result(slack_client, split_commands):
     latest_result = database.get_latest_result()
     if not latest_result:
@@ -85,24 +102,58 @@ def cmd_last_5_results(slack_client, split_commands):
                               (f'{result.p1_score}-{result.p2_score}', 15)])
     return output + '```\n'
 
+def get_trophy_emoji(placement):
+    if placement == 1:
+        return ':trophy:'
+    elif placement == 2:
+        return ':second_place_medal:'
+    elif placement == 3:
+        return ':third_place_medal:'
+    else:
+        return ''
+
 def cmd_leaderboard(slack_client, split_commands):
-    (results, error) = database.get_leaderboard()
+    log = logging.getLogger(__name__)
+    if (len(split_commands) == 2):
+        (results, error) = database.get_leaderboard(split_commands[1])
+    else:
+        (results, error) = database.get_leaderboard()
     if error:
         return error
-    output = create_header_row([('Name', 20),
-                                ('Score', 10),
-                                ('Games', 10),
-                                ('Wins', 10),
-                                ('Losses', 10),
-                                ('Difference', 15)])
-    for result in results:
-        output += create_row([(result.name, 20),
-                              (result.score, 10),
-                              (result.games, 10),
-                              (result.wins, 10),
-                              (result.games - result.wins, 10),
-                              (f'{result.wonpoints}-{result.lostpoints}', 15)])
-    return output + '```\n'
+    log.debug('Leaderboard result is %s long', len(results))
+    blocks = [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Showing the leaderboard for season *{results[0].season}*"
+            }
+        }
+    ]
+    blocks.append({"type": "divider"})
+    for placement, result in enumerate(results, 1):
+        user = slack.get_user_info(slack_client, result.slack_user_id)
+        user_image_url = slack.get_user_image_url(user)
+        trophy_emoji = get_trophy_emoji(placement)
+        leaderboard_row = {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": (f"{trophy_emoji}*{result.player_name}*\n```{result.score} points\n"
+                         f"W/L {result.wins}-{result.games-result.wins} "
+                         f"Diff {result.wonpoints}-{result.lostpoints}```")
+            }
+        }
+        if user_image_url:
+            leaderboard_row['accessory'] = {
+                "type": "image",
+                "image_url": f"{user_image_url}",
+                "alt_text": f"{result.player_name}"
+            }
+        blocks.append(leaderboard_row)
+        blocks.append({"type": "divider"})
+
+    return blocks
 
 def cmd_help(slack_client, split_commands):
     column_widths = [20, 60, 0]
@@ -167,6 +218,13 @@ def get_commands():
             'func': cmd_create_new_season
         },
         {
+            'name': 'list-seasons',
+            'params': 0,
+            'param_names': '',
+            'help_text': 'List all seasons',
+            'func': cmd_list_seasons
+        },
+        {
             'name': 'last-5-results',
             'params': 0,
             'param_names': '',
@@ -188,11 +246,11 @@ def get_commands():
             'func': cmd_leaderboard
         },
         {
-            'name': 'top-3',
-            'params': 0,
-            'param_names': '',
-            'help_text': 'Show the current top 3 players',
-            'func': cmd_top_3
+            'name': 'old-leaderboard',
+            'params': 1,
+            'param_names': '"season name in quotes"',
+            'help_text': 'Shows the leaderboard for the given season',
+            'func': cmd_leaderboard
         },
         {
             'name': 'undo-last-result',

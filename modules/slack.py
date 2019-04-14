@@ -55,22 +55,63 @@ def send_ephemeral(slack_client, channel, user, message, default_message=None):
         text=message or default_message
     )
 
-def get_user_info(slack_client, slack_handle):
+def get_user_info(slack_client, slack_user_id):
+    log = logging.getLogger(__name__)
+    log.debug('Calling "users.info" on slack api')
+    user = slack_client.api_call(
+        'users.info',
+        user=slack_user_id
+    )
+    log.debug('Got user %s', user)
+    return user
+
+def get_user_list(slack_client):
+    log = logging.getLogger(__name__)
+    log.debug('Calling "users.list" on slack api')
     result = slack_client.api_call(
-                'users.info',
-                user=slack_handle
-                )
-    print('Result: ', result)
+        'users.list'
+    )
+    #log.debug('Response from api was: %s', result)
     return result
+
+def get_user_from_user_list(user_list, user_id):
+    log = logging.getLogger(__name__)
+    if not 'members' in user_list:
+        return None
+    for user in user_list['members']:
+        if 'id' in user and user['id'] == user_id:
+            log.debug('Found user %s in user_list', user_id)
+            return user
+    return None
+
+def get_user_image_url(user):
+    imv_version = 'image_192'
+    log = logging.getLogger(__name__)
+    if 'user' in user and 'profile' in user['user']:
+        if imv_version in user['user']['profile']:
+            log.debug('Found user image for user %s', user['user']['id'])
+            return user['user']['profile'][imv_version]
+    return None
 
 def send_message(slack_client, channel, message, default_message=None):
     log = logging.getLogger(__name__)
     log.debug('Sending msg to ch "%s" msg "%s"', channel, message)
-    slack_client.api_call(
+    response = slack_client.api_call(
         "chat.postMessage",
         channel=channel,
         text=message or default_message
     )
+    log.debug('Response from api was: %s', response)
+
+def send_block_message(slack_client, channel, blocks):
+    log = logging.getLogger(__name__)
+    log.debug('Sending block message to ch "%s" blocks  "%s"', channel, blocks)
+    response = slack_client.api_call(
+        "chat.postMessage",
+        channel=channel,
+        blocks=blocks
+    )
+    log.debug('Response from api was: %s', response)
 
 def rtm_read(slack_client):
     return slack_client.rtm_read()

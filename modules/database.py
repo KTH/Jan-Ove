@@ -93,14 +93,39 @@ def get_last_5_results():
         return (None, 'Not enough data')
     return (results, None)
 
-# Returns tuple with (result, None) on success and (None, errortext) on error
-def get_leaderboard():
-    current_season = get_current_season()
-    if not current_season:
-        return (None, 'There is no active season')
-    current_season_id = current_season.seasonid
+def get_season_id(season_name):
     results = run_select(
-        "SELECT 0 AS score, p.name AS name, COUNT(*) AS games, "
+        "SELECT seasonid "
+        "FROM seasons "
+        "WHERE name = ?",
+        season_name,
+        fetch_func=fetchone
+    )
+    if not results:
+        return None
+    return results.seasonid
+
+def get_all_seasons():
+    return run_select(
+        "SELECT name, startedat, endedat "
+        "FROM seasons"
+    )
+
+# Returns tuple with (result, None) on success and (None, errortext) on error
+def get_leaderboard(season_name=None):
+    if not season_name:
+        # Get current leaderboard
+        current_season = get_current_season()
+        if not current_season:
+            return (None, 'There is no active season')
+        season_id = current_season.seasonid
+    else:
+        # Get an old season leaderboard
+        season_id = get_season_id(season_name)
+        if not season_id:
+            return (None, 'No season with that name')
+    results = run_select(
+        "SELECT p.slackuserid as slack_user_id, s.name as season, 0 AS score, p.name AS player_name, COUNT(*) AS games, "
         "(ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player1id AND player1score > player2score GROUP BY player1id), 0) + "
         "   ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player2id AND player2score > player1score GROUP BY player2id), 0)) AS wins, "
         "(ISNULL((SELECT sum(player1score) FROM results WHERE seasonid = ? AND p.playerid = player1id GROUP BY player1id), 0) + "
@@ -109,11 +134,12 @@ def get_leaderboard():
         "   ISNULL((SELECT sum(player2score) FROM results WHERE seasonid = ? AND p.playerid = player1id GROUP BY player1id), 0)) AS lostpoints "
         "FROM players AS p "
         "JOIN results AS r ON p.playerid = r.player1id OR p.playerid = r.player2id "
+        "JOIN seasons AS s ON s.seasonid = ? "
         "WHERE r.seasonid = ? "
-        "GROUP BY p.name, p.playerid",
-        current_season_id, current_season_id, current_season_id,
-        current_season_id, current_season_id, current_season_id,
-        current_season_id
+        "GROUP BY p.slackuserid, s.name, p.name, p.playerid",
+        season_id, season_id, season_id,
+        season_id, season_id, season_id,
+        season_id, season_id
     )
     if results:
         for result in results:

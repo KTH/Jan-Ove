@@ -10,6 +10,14 @@ class TestUtil(unittest.TestCase):
         result = util.args_to_commands(test_data)
         self.assertEqual(len(result), 2)
         self.assertEqual(result, ['new-season', 'name of season'])
+        test_data = 'new-season "season"'
+        result = util.args_to_commands(test_data)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result, ['new-season', 'season'])
+        test_data = 'new-season "season 1"'
+        result = util.args_to_commands(test_data)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result, ['new-season', 'season 1'])
         test_data = 'register-result @tinglev @hoyce 10 0'
         result = util.args_to_commands(test_data)
         self.assertEqual(len(result), 5)

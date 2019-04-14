@@ -17,24 +17,28 @@ def handle_command(slack_client, args, channel, user):
         trigger_text = os.environ.get('BOT_TRIGGER') or '!pingis'
         default_response = f'Not sure what you mean. Use *{trigger_text} help* for help'
         split_args = util.args_to_commands(args)
-        cmd = split_args[0]
+        log.debug('split_args is "%s"', split_args)
+        main_command = split_args[0]
         response = None
-        command = commands.is_valid_command(cmd)
-        if command:
-            if (len(split_args) - 1) != command['params']:
+        command_json = commands.is_valid_command(main_command)
+        if command_json:
+            if (len(split_args) - 1) != command_json['params']:
                 response = (
                     f'Wrong number of arguments for command. '
-                    f'Should be {command["params"]} '
+                    f'Should be {command_json["params"]} '
                     f'but was {len(split_args) - 1}'
                 )
             else:
-                response = command['func'](slack_client, split_args)
+                response = command_json['func'](slack_client, split_args)
 
     except ReadTimeout as error:
         log.error('Error while handling command: %s', error)
         response = ('Sorry, the :whale: refused to do as it was told. Try again ...\n'
                     '```{}```'.format(error))
-    slack.send_message(slack_client, channel, response, default_response)
+    if isinstance(response, list):
+        slack.send_block_message(slack_client, channel, response)
+    else:
+        slack.send_message(slack_client, channel, response, default_response)
 
 def read_and_handle_rtm(slack_client):
     log = logging.getLogger(__name__)
