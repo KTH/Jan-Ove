@@ -7,6 +7,7 @@ slackclient = "*"
 pyodbc = "*"
 requests = "*"
 coloredlogs = "*"
+Flask = "*"
 
 [requires]
 python_version = "3.6"
