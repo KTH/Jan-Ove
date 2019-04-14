@@ -14,6 +14,8 @@ def is_valid_command(command):
 
 def cmd_list_seasons(slack_client, split_commands):
     seasons = database.get_all_seasons()
+    if not seasons:
+        return 'Not enough data'
     output = create_header_row([('Name', 20),
                                 ('Started at', 20),
                                 ('Ended at', 20)])
