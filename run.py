@@ -87,5 +87,6 @@ def start_webserver():
 
 if __name__ == "__main__":
     log_module.init_logging()
-    start_webserver()
+    # This blocks the bot from running
+    #start_webserver()
     start_bot()
