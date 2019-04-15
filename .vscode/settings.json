@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/Users/patricjansson/.local/share/virtualenvs/Jan-Ove-DQmLLHHo/bin/python"
+    "python.pythonPath": "/Users/tinglev/.local/share/virtualenvs/Jan-Ove-jKCkIQnR/bin/python",
+    "python.linting.pylintEnabled": true
 }
