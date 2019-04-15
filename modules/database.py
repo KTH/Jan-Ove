@@ -125,7 +125,7 @@ def get_leaderboard(season_name=None):
         if not season_id:
             return (None, 'No season with that name')
     results = run_select(
-        "SELECT p.slackuserid as slack_user_id, s.name as season, 0 AS score, p.name AS player_name, COUNT(*) AS games, "
+        "SELECT p.imageurl as image_url, p.slackuserid as slack_user_id, s.name as season, 0 AS score, p.name AS player_name, COUNT(*) AS games, "
         "(ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player1id AND player1score > player2score GROUP BY player1id), 0) + "
         "   ISNULL((SELECT COUNT(*) FROM results WHERE seasonid = ? AND p.playerid = player2id AND player2score > player1score GROUP BY player2id), 0)) AS wins, "
         "(ISNULL((SELECT sum(player1score) FROM results WHERE seasonid = ? AND p.playerid = player1id GROUP BY player1id), 0) + "
@@ -136,7 +136,7 @@ def get_leaderboard(season_name=None):
         "JOIN results AS r ON p.playerid = r.player1id OR p.playerid = r.player2id "
         "JOIN seasons AS s ON s.seasonid = ? "
         "WHERE r.seasonid = ? "
-        "GROUP BY p.slackuserid, s.name, p.name, p.playerid",
+        "GROUP BY p.imageurl, p.slackuserid, s.name, p.name, p.playerid",
         season_id, season_id, season_id,
         season_id, season_id, season_id,
         season_id, season_id
@@ -153,10 +153,11 @@ def player_exists(slack_mention):
 
 def register_player(slack_client, slack_user_id):
     user_info = slack.get_user_info(slack_client, slack_user_id)
+    image_url = slack.get_user_image_url(user_info)
     player_name = user_info['user']['real_name']
     run_commit(
-        "INSERT INTO players (name, slackuserid) VALUES (?, ?)",
-        player_name, slack_user_id
+        "INSERT INTO players (name, slackuserid, imageurl) VALUES (?, ?, ?)",
+        player_name, slack_user_id, image_url
     )
     return player_name
 
@@ -206,7 +207,8 @@ def drop_and_create_tables():
         "CREATE TABLE players ("
         "playerid INT IDENTITY(1,1) PRIMARY KEY, "
         "name VARCHAR(50) NOT NULL, "
-        "slackuserid VARCHAR(15) NOT NULL"
+        "slackuserid VARCHAR(15) NOT NULL, "
+        "imageurl VARCHAR(200) NULL"
         ")"
     )
     run_commit(

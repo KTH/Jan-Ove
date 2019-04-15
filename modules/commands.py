@@ -134,8 +134,6 @@ def cmd_leaderboard(slack_client, split_commands):
     ]
     blocks.append({"type": "divider"})
     for placement, result in enumerate(results, 1):
-        user = slack.get_user_info(slack_client, result.slack_user_id)
-        user_image_url = slack.get_user_image_url(user)
         trophy_emoji = get_trophy_emoji(placement)
         leaderboard_row = {
             "type": "section",
@@ -146,10 +144,10 @@ def cmd_leaderboard(slack_client, split_commands):
                          f"Diff {result.wonpoints}-{result.lostpoints}```")
             }
         }
-        if user_image_url:
+        if result.image_url:
             leaderboard_row['accessory'] = {
                 "type": "image",
-                "image_url": f"{user_image_url}",
+                "image_url": f"{result.image_url}",
                 "alt_text": f"{result.player_name}"
             }
         blocks.append(leaderboard_row)
