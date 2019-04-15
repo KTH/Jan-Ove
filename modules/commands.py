@@ -174,7 +174,7 @@ def cmd_help(slack_client, split_commands):
     help_text += create_header_row([('Command', 20),
                                     ('Parameters', 60),
                                     ('Description', 0)])
-    for command in get_commands():
+    for command in [cmd for cmd in get_commands() if cmd['active']]:
         help_text += create_row(
             [
                 (command['name'], column_widths[0]),
