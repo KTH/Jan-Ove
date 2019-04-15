@@ -116,45 +116,57 @@ def get_trophy_emoji(placement):
 
 def cmd_leaderboard(slack_client, split_commands):
     log = logging.getLogger(__name__)
-    if (len(split_commands) == 2):
+    if len(split_commands) == 2:
         (results, error) = database.get_leaderboard(split_commands[1])
     else:
         (results, error) = database.get_leaderboard()
     if error:
         return error
     log.debug('Leaderboard result is %s long', len(results))
-    blocks = [
+    blocks = create_leaderboard_blocks(results[0].season)
+    add_divider_to_blocks(blocks)
+    for placement, player_row in enumerate(results, 1):
+        leaderboard_row = create_leaderboard_row(player_row, placement)
+        if player_row.image_url:
+            add_image_to_leaderboard_row(leaderboard_row, player_row)
+        blocks.append(leaderboard_row)
+        add_divider_to_blocks(blocks)
+
+    return blocks
+
+def add_divider_to_blocks(blocks):
+    blocks.append({"type": "divider"})
+
+def create_leaderboard_blocks(season_name):
+    return [
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"Showing the leaderboard for season *{results[0].season}*"
+                "text": f"Showing the leaderboard for season *{season_name}*"
             }
         }
-    ]
-    blocks.append({"type": "divider"})
-    for placement, result in enumerate(results, 1):
-        trophy_emoji = get_trophy_emoji(placement)
-        leaderboard_row = {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": (f"{trophy_emoji}*{result.player_name}*\n```{result.score} points\n"
-                         f"Games played {result.games} | "
-                         f"W/L {result.wins}-{result.games-result.wins} | "
-                         f"Diff {result.wonpoints}-{result.lostpoints}```")
-            }
-        }
-        if result.image_url:
-            leaderboard_row['accessory'] = {
-                "type": "image",
-                "image_url": f"{result.image_url}",
-                "alt_text": f"{result.player_name}"
-            }
-        blocks.append(leaderboard_row)
-        blocks.append({"type": "divider"})
+    ]    
 
-    return blocks
+def add_image_to_leaderboard_row(leaderboard_row, player_row):
+    leaderboard_row['accessory'] = {
+        "type": "image",
+        "image_url": f"{player_row.image_url}",
+        "alt_text": f"{player_row.player_name}"
+    }
+
+def create_leaderboard_row(player_row, placement):
+    trophy_emoji = get_trophy_emoji(placement)
+    return {
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": (f"{trophy_emoji}*{player_row.player_name}*\n```{player_row.score} points\n"
+                     f"Games played {player_row.games} | "
+                     f"W/L {player_row.wins}-{player_row.games-player_row.wins} | "
+                     f"Diff {player_row.wonpoints}-{player_row.lostpoints}```")
+            }
+        }
 
 def cmd_help(slack_client, split_commands):
     column_widths = [20, 60, 0]
