@@ -6,6 +6,9 @@ import logging
 import log as log_module
 from requests.exceptions import ReadTimeout
 from modules import slack, database, commands, util
+from flask import Flask
+
+FLASK = Flask(__name__)
 
 def handle_command(slack_client, args, channel, user):
     try:
@@ -59,7 +62,7 @@ def read_and_handle_rtm(slack_client):
             handle_command(slack_client, command, channel, user)
     time.sleep(rtm_read_delay_secs)
 
-def main():
+def start_bot():
     log = logging.getLogger(__name__)
     try:
         slack_client = slack.init()
@@ -74,6 +77,15 @@ def main():
         #                                      '\n```{}```'.format(err)))
         raise
 
+
+@FLASK.route('/jan-ove/', methods=['GET'])
+def leaderboard():
+    return f'200 {database.get_leaderboard()}'
+
+def start_webserver():
+    FLASK.run(host='0.0.0.0', port=3000, debug=False)
+
 if __name__ == "__main__":
     log_module.init_logging()
-    main()
+    start_webserver()
+    start_bot()

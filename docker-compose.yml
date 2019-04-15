@@ -6,10 +6,12 @@ services:
     env_file:
       - .env
 
+    ports:
+      - 3000:3000
+
     volumes:
       - /var/run:/var/run
       - ~/.docker:/root/.docker
-
     deploy:
       # How many replicas should be running of this service?
       replicas: 1
