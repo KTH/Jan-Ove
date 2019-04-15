@@ -140,7 +140,8 @@ def cmd_leaderboard(slack_client, split_commands):
             "text": {
                 "type": "mrkdwn",
                 "text": (f"{trophy_emoji}*{result.player_name}*\n```{result.score} points\n"
-                         f"W/L {result.wins}-{result.games-result.wins} "
+                         f"Games played {result.games} | "
+                         f"W/L {result.wins}-{result.games-result.wins} | "
                          f"Diff {result.wonpoints}-{result.lostpoints}```")
             }
         }
@@ -265,12 +266,12 @@ def get_commands():
             'param_names': '',
             'help_text': 'Shows this help',
             'func': cmd_help
-        },
-        {
-            'name': 'initialize-database',
-            'params': 0,
-            'param_names': '',
-            'help_text': 'WARNING! Drops the entire database and recreates it',
-            'func': cmd_recreate_database
         }
+        # {
+        #     'name': 'initialize-database',
+        #     'params': 0,
+        #     'param_names': '',
+        #     'help_text': 'WARNING! Drops the entire database and recreates it',
+        #     'func': cmd_recreate_database
+        # }
     ]
