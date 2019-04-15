@@ -8,7 +8,7 @@ import modules.database as database
 
 def is_valid_command(command):
     for cmd in get_commands():
-        if command == cmd['name']:
+        if command == cmd['name'] and cmd['active']:
             return cmd
     return None
 
@@ -214,76 +214,87 @@ def get_commands():
             'params': 1,
             'param_names': '@slack-name',
             'help_text': 'Registers a slack user for play',
-            'func': cmd_register_user
+            'func': cmd_register_user,
+            'active': True
         },
         {
             'name': 'list-players',
             'params': 0,
             'param_names': '',
             'help_text': 'List all registered players',
-            'func': cmd_list_players
+            'func': cmd_list_players,
+            'active': True
         },
         {
             'name': 'new-season',
             'params': 1,
             'param_names': '"Season name in quotes"',
             'help_text': 'Create a new season, starting now',
-            'func': cmd_create_new_season
+            'func': cmd_create_new_season,
+            'active': True
         },
         {
             'name': 'list-seasons',
             'params': 0,
             'param_names': '',
             'help_text': 'List all seasons',
-            'func': cmd_list_seasons
+            'func': cmd_list_seasons,
+            'active': True
         },
         {
             'name': 'last-5-results',
             'params': 0,
             'param_names': '',
             'help_text': 'List the result of the last 5 played games',
-            'func': cmd_last_5_results
+            'func': cmd_last_5_results,
+            'active': True
         },
         {
             'name': 'register-result',
             'params': 4,
             'param_names': '@player1-name @player2-name p1_score p2_score',
             'help_text': 'Register the result of a game',
-            'func': cmd_register_result
+            'func': cmd_register_result,
+            'active': True
         },
         {
             'name': 'leaderboard',
             'params': 0,
             'param_names': '',
             'help_text': 'Shows the current leaderboard',
-            'func': cmd_leaderboard
+            'func': cmd_leaderboard,
+            'active': True
         },
         {
             'name': 'old-leaderboard',
             'params': 1,
             'param_names': '"season name in quotes"',
             'help_text': 'Shows the leaderboard for the given season',
-            'func': cmd_leaderboard
+            'func': cmd_leaderboard,
+            'active': True
         },
         {
             'name': 'undo-last-result',
             'params': 0,
             'param_names': '',
             'help_text': 'Deletes the last registered result',
-            'func': cmd_undo_last_result
+            'func': cmd_undo_last_result,
+            'active': True
         },
         {
             'name': 'help',
             'params': 0,
             'param_names': '',
             'help_text': 'Shows this help',
-            'func': cmd_help
+            'func': cmd_help,
+            'active': True
+        },
+        {
+            'name': 'initialize-database',
+            'params': 0,
+            'param_names': '',
+            'help_text': 'WARNING! Drops the entire database and recreates it',
+            'func': cmd_recreate_database,
+            'active': False
         }
-        # {
-        #     'name': 'initialize-database',
-        #     'params': 0,
-        #     'param_names': '',
-        #     'help_text': 'WARNING! Drops the entire database and recreates it',
-        #     'func': cmd_recreate_database
-        # }
     ]
