@@ -31,7 +31,7 @@ Configuration is done through environment variables:
 
 # How to use
 
-First time usage: run the `!pingis initialize-database` command to create all neccessary tables.
+First time usage: Set `active=True` for the command `initialize-database` in the file `commands.py`, start Jan-Ove and then run the `!pingis initialize-database` command to create all neccessary tables.
 
 Then invite the bot to a channel or use private messaging and send `!pingis help` to get a list of commands.
 
