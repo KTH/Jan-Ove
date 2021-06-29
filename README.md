@@ -1,4 +1,5 @@
-# Jan-Ove :chart_with_upwards_trend:
+# Jan-Ove :chart_with_upwards_trend: ![Continous Integration](https://github.com/KTH/Jan-Ove/actions/workflows/main.yml/badge.svg)
+
 
 ```
 常青树 Cháng Qīng Shù ("Evergreen Tree")
